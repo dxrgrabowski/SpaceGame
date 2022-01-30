@@ -1,4 +1,4 @@
-import pygame, sys, random
+import pygame, sys, random, time
 import os
 from button import Button
 pygame.init()
@@ -42,7 +42,7 @@ class Bullet:
 class Ship:
     setcooldown=30
     
-    def __init__(self,x,y,health):
+    def __init__(self,x,y,health=100):
         self.x=x
         self.y=y
         self.health=health
@@ -56,6 +56,12 @@ class Ship:
         for bullet in self.bullets:
             bullet.draw(window)
 
+    def cooldown(self):
+        if self.cooldownC>=self.setcooldown:
+            self.cooldownC=0
+        elif self.cooldownC>0:
+            self.cooldownC+=1
+    
     def move_bullets(self, vel, obj):
         self.cooldown()
         for bullet in self.bullets:
@@ -65,12 +71,6 @@ class Ship:
             elif bullet.collision(obj):
                 obj.health -= 10
                 self.bullets.remove(bullet)
-
-    def cooldown(self):
-        if self.cooldownC>=self.setcooldown:
-            self.cooldownC=0
-        elif self.cooldownC>0:
-            self.cooldownC+=1
     
     def shoot(self):
         if self.cooldownC==0:
@@ -105,9 +105,10 @@ class Player(Ship):
                             self.bullets.remove(bullet)
     def draw(self, window):
         super().draw(window)
+
 class Enemy(Ship):
     COLOR_MAP = {
-                "red": (yellowSmallEnemy, bulletSmall_1),
+                "red": (yellowSmallEnemy, bulletSmall_1)
                 }
 
     def __init__(self,x,y,color,health=100):
@@ -134,8 +135,8 @@ def collide(obj1,obj2):
 def main():
     run=True
     FPS=120
-    pygame.mouse.set_visible(0)
     clock=pygame.time.Clock()
+    pygame.mouse.set_visible(0)
     enemies=[]
     wave_length=5
     enemy_vel=1
@@ -145,19 +146,17 @@ def main():
     lives=5
     lost=False
     lost_count=0
-    x,y=pygame.mouse.get_pos()
-    player=Player(x,y)
     
     def windowDraw():
-        x,y=pygame.mouse.get_pos()
-        player=Player(x,y)
-        win.fill("#1c1e1f")
+        win.blit(BG,(0,0))
         player.draw(win)
         for enemy in enemies:
             enemy.draw(win)
         pygame.display.update()     
     
     while run:
+        x,y=pygame.mouse.get_pos()
+        player=Player(x,y)
         clock.tick(FPS)
         windowDraw()
         
@@ -173,7 +172,7 @@ def main():
             level += 1
             wave_length += 5
             for i in range(wave_length):
-                enemy = Enemy(random.randrange(50, width-100), random.randrange(-1500, -100), random.choice(["red"]))
+                enemy = Enemy(random.randrange(50, width-100), random.randrange(-1500, -50), random.choice(["red"]))
                 enemies.append(enemy)
         
         for enemy in enemies[:]:
@@ -192,10 +191,9 @@ def main():
                 pygame.quit()
                 sys.exit()
         event = pygame.event.wait()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                mainMenu()
-        keys=pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            mainMenu()
         if keys[pygame.K_SPACE]:
             player.shoot()
         
@@ -236,6 +234,6 @@ def mainMenu():
                     run=False
                     pygame.quit()
                     sys.exit()
-            pygame.display.update()
+        pygame.display.update()
 mainMenu()
 
