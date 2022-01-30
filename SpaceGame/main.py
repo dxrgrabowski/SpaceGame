@@ -155,9 +155,9 @@ def main():
         pygame.display.update()     
     
     while run:
+        clock.tick(FPS)
         x,y=pygame.mouse.get_pos()
         player=Player(x,y)
-        clock.tick(FPS)
         windowDraw()
         
         if lives <= 0 or player.health <= 0:
@@ -188,16 +188,17 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                quit()
+
         event = pygame.event.wait()
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            mainMenu()
+        #if keys[pygame.K_ESCAPE]:
+            #mainMenu()
         if keys[pygame.K_SPACE]:
             player.shoot()
         
         player.move_bullets(-bullet_vel, enemies)
+        pygame.display.update()
     
 #Menu font
 def get_font(size): # Returns Press-Start-2P in the desired size
@@ -224,16 +225,16 @@ def mainMenu():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run=False
+                
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if playButton.checkForInput(menuPos):
                     main()
                 if quitButton.checkForInput(menuPos):
-                    run=False
+                    
                     pygame.quit()
                     sys.exit()
         pygame.display.update()
+    pygame.quit()
 mainMenu()
-
