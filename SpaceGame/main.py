@@ -1,6 +1,7 @@
 import pygame, sys, random, time
 import os
 from button import Button
+from volume import Volume
 pygame.init()
 pygame.font.init()
 
@@ -60,7 +61,7 @@ YELLOW_LASER = pygame.image.load(os.path.join("test/assets", "pixel_laser_yellow
 BG = pygame.transform.scale(pygame.image.load(os.path.join("test/assets", "background-black.png")), (WIDTH, HEIGHT))
 MMBG = pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "background_blue_1.png")), (WIDTH, HEIGHT))
 LOGO=pygame.image.load(os.path.join("SpaceGame\Assets", "Skyspace_logo_white.png"))
-VOLUMEBG=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "volume_bg.png")), (100, 100))
+VOLUMEBG=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "volume_bg.png")), (100, 100)).convert_alpha()
 VOLUMELOW=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "volume_low.png")), (100, 100))
 VOLUMEHIGH=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "volume_high.png")), (100, 100))
 VOLUMEMUTE=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame\Assets", "volume_mute.png")), (100, 100))
@@ -299,7 +300,7 @@ def main_menu():
         WIN.blit(MMBG, (0,0))
         menuPos=pygame.mouse.get_pos()
         WIN.blit(LOGO, (WIDTH/2 - LOGO.get_width()/2, 50))
-        
+        '''
         match volume:
             case 1:
                 pygame.mixer.music.set_volume(1.0)
@@ -310,17 +311,19 @@ def main_menu():
             case 0:
                 pygame.mixer.music.set_volume(0.0)
                 WIN.blit(VOLUMEMUTE,(WIDTH-150,HEIGHT-150))
-                
+        '''   
         
         playButton=Button(image=pygame.image.load("SpaceGame/assets/Play Rect.png"), pos=(WIDTH/2, 320), 
                             text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")
         quitButton=Button(image=pygame.image.load("SpaceGame/assets/Quit Rect.png"), pos=(WIDTH/2, 480), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")
-    
-        muteButton=Button(VOLUMEBG, pos=(WIDTH-100,HEIGHT-100),text_input=".",
-                            font=get_font(1),base_color="#d7fcd4", hovering_color="Blue")       
 
-        for button in [playButton,quitButton,muteButton]:
+        #muteButton=Button(VOLUMEBG, pos=(WIDTH-100,HEIGHT-100),text_input=".",
+        #                    font=get_font(1),base_color="#d7fcd4", hovering_color="Blue")       
+
+        volumeButton=Volume(VOLUMEHIGH,pos=(WIDTH-100,HEIGHT-100))
+
+        for button in [playButton,quitButton]:
             button.changeColor(menuPos)
             button.update(WIN)
         
@@ -334,7 +337,7 @@ def main_menu():
                 if quitButton.checkForInput(menuPos): 
                     pygame.quit()
                     sys.exit()
-                if muteButton.checkForInput(menuPos):
+                #if muteButton.checkForInput(menuPos):
                     if volume==1:
                         volume=2
                     elif volume==2:
