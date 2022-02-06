@@ -25,3 +25,6 @@ class Coin(pygame.sprite.Sprite):
 
     def update(self):
         self.current_sprite+=0.2
+        if self.current_sprite>=len(self.sprites):
+            self.current_sprite=0
+        self.image=self.sprites[self.current_sprite]
