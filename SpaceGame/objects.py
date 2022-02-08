@@ -67,16 +67,17 @@ class Asteroid:
     def move(self,):
         self.y+=self.vely
         self.x+=self.velx
-    
+    def get_height(self):
+        return self.img.get_height()
     def collision(self, obj):
         return collide(self, obj)
     def off_screen(self, height):
         return not(self.y <= height)
 
 class Ship:
-    COOLDOWN = 30
+    COOLDOWN = 14
 
-    def __init__(self, x, y, health=100):
+    def __init__(self, x, y, health):
         self.x = x
         self.y = y
         self.health = health
@@ -112,11 +113,43 @@ class Ship:
     def get_height(self):
         return self.ship_img.get_height()
 
+class Boss:
+    def __init__(self,img,x, y,health):
+        self.x=x
+        self.y=y
+        self.img=img
+        self.health=health
+    
+    def move(self,vy,vx):
+        self.y += vy
+        self.x += vx
+        
+        if self.x<100:
+            vx = -vx
+        if self.x>c.WIDTH-200:
+            vx = -vx
+        
+        xChange=pygame.USEREVENT
+        pygame.time.set_timer(xChange,1500)
+        for event in pygame.event.get():
+            if event.type==xChange:
+                if(random.random()):
+                   vx = -vx 
+
+    
+    def shoot(self):
+        #shootX=shootX
+        #shootY=shootY
+        if self.cool_down_counter == 0:
+            laser = Laser(self.x+self.shootX, self.y+self.shootY, self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter = 2
+
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
-        self.ship_img = c.YELLOW_SPACE_SHIP
+        self.ship_img = c.SHIP1
         self.laser_img = c.bullet5
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health

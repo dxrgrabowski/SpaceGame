@@ -2,13 +2,14 @@ import pygame, sys, random, time
 import os
 from button import Button
 from volume import Volume
-from objects import Level,Booster,Laser,Asteroid,Player,Enemy,collide
+from objects import Level,Boss,Booster,Laser,Asteroid,Player,Enemy,collide
 import constants as c
 pygame.init()
 pygame.font.init()
 
 #TO DO
 '''
+-
 -Level design
 -Plik konfiguracyjny opcji
 -Plik z zapisem
@@ -23,22 +24,11 @@ pygame.font.init()
 WIN = pygame.display.set_mode((c.WIDTH, c.HEIGHT))
 pygame.display.set_caption("SkySpace by @Dexor")
 
-#Load images
-RED_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_red_small.png"))
-GREEN_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_green_small.png"))
-BLUE_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_blue_small.png"))
-
-#Player
-YELLOW_SPACE_SHIP=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\playerShips', 'player_3.png')),(48,48))
-
-asteroidSpawn=pygame.USEREVENT+1
-pygame.time.set_timer(asteroidSpawn,5)
-enemySpawn=pygame.USEREVENT+1
-pygame.time.set_timer(enemySpawn,5)
+asteroidSpawn=pygame.USEREVENT
+pygame.time.set_timer(asteroidSpawn,c.FPS*30)
 
 def main():
     run = True
-    FPS = 60
     level = 0
     lives = 5
     main_font = get_font(45)
@@ -47,7 +37,9 @@ def main():
     asteroidClock=0
     asteroids=[]
     enemies = []
-    wave_length = 5
+    bosses=[]
+    enemy_number,asteroid_number=Level.lvl_desc[1]
+    
     enemy_vel = 1
 
     laser_vel = 5
@@ -82,34 +74,40 @@ def main():
         pygame.display.update()
 
     while run:
-        clock.tick(FPS)
+        clock.tick(c.FPS)
         redraw_window()
+        
         if lives <= 0 or player.health <= 0:
             lost = True
             lost_count += 1
         if lost:
-            if lost_count > FPS * 3:
+            if lost_count > c.FPS * 3:
                 run = False
                 #Tutaj bedzie plansza z podsumowaniem
             else:
                 continue
 #resp enemy
-        if len(enemies) == 0:
+        
+        if len(enemies) == 0 and bosses.count()==0:
             level += 1
-            wave_length += 5
-            for i in range(wave_length):
+            enemy_number,asteroid_number=Level.lvl_desc[level]
+            for i in range(enemy_number):
                 enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-1000, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
                 enemies.append(enemy)
         
-        if asteroidClock==0:
-            asteroid=Asteroid(random.randrange(-20,c.WIDTH+50),-30,c.asteroid1)
-            asteroids.append(asteroid)
-            asteroidClock=1
+        if level==5:
+            boss1=Boss(c.boss1IMG,c.WIDTH/2-88,-75,1800)
+            bosses.append(boss1)
+            
 
 #Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 quit()
+            if event.type==asteroidSpawn:
+                asteroid=Asteroid(random.randrange(-20,c.WIDTH+50),-30,c.asteroid1)
+                asteroids.append(asteroid)
 
 #Key binding
         keys = pygame.key.get_pressed()
@@ -118,12 +116,14 @@ def main():
         if keys[pygame.K_ESCAPE]:
             main_menu()
         if keys[pygame.K_UP]:
-            asteroidClock-=1
+            asteroids.append(asteroid)
 #Collision        
-        for asteroid in asteroids:
+        for asteroid in asteroids[:]:
             asteroid.move()
             if asteroid.collision(player):
                 player.health -= 40
+                asteroids.remove(asteroid)
+            if asteroid.y + asteroid.get_height() > c.HEIGHT:
                 asteroids.remove(asteroid)
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
@@ -140,6 +140,18 @@ def main():
         player.move_lasers(-laser_vel, enemies)
 
 ######################################################################################################################
+def options_menu():
+    run = True
+    volume_var=1
+    pygame.mouse.set_visible(1)
+    pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
+    pygame.mixer.music.play(-1)
+    
+    while run:
+        WIN.blit(c.BG, (0,0))
+        menuPos=pygame.mouse.get_pos()
+        
+
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("SpaceGame/assets/font.ttf", size)
@@ -152,16 +164,16 @@ def main_menu():
     
 
     while run:
-        WIN.blit(c.MMBG, (0,0))
+        WIN.blit(c.BG, (0,0))
         menuPos=pygame.mouse.get_pos()
         WIN.blit(c.LOGO, (c.WIDTH/2 - c.LOGO.get_width()/2, 50))
         
         match volume_var:
             case 1:
-                pygame.mixer.music.set_volume(1.0)
+                pygame.mixer.music.set_volume(0.7)
                 WIN.blit(c.VOLUMEHIGH,(c.WIDTH-150,c.HEIGHT-150))
             case 2:
-                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.set_volume(0.4)
                 WIN.blit(c.VOLUMELOW,(c.WIDTH-150,c.HEIGHT-150))
             case 0:
                 pygame.mixer.music.set_volume(0.0)
@@ -171,12 +183,18 @@ def main_menu():
                             text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")
         quitButton=Button(None, pos=(c.WIDTH/2, 420), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")     
-        optionsButton=Volume(pygame.transform.scale(pygame.image.load('SpaceGame\Assets\menu\options_button.png'),(300,100)),pos=(c.WIDTH/2,520))
+        optionsButton=Button(None, pos=(c.WIDTH/2, 520), 
+                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")     
+        
+        #optionsButton=Volume(c.buttonOptionsimg,pos=(c.WIDTH/2,520))
+        
+        
         volumeButton=Volume(c.VOLUMEHIGH,pos=(c.WIDTH-100,c.HEIGHT-100))
 
-        for volume in [optionsButton]:
-            volume.draw(WIN)
-        for button in [playButton,quitButton]:
+        #for volume in [optionsButton]:
+        #    volume.hooverChange(menuPos,c.HbuttonOptionsimg)
+        #    volume.draw(WIN)
+        for button in [playButton,quitButton,optionsButton]:
             button.changeColor(menuPos)
             button.update(WIN)
 
@@ -184,7 +202,7 @@ def main_menu():
             if event.type == pygame.QUIT:
                 run=False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.2)
+                pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                 if playButton.checkForInput(menuPos):
                     pygame.mixer.music.fadeout(240)
                     main()
@@ -203,6 +221,7 @@ def main_menu():
         pygame.display.update()
     pygame.quit()
 main_menu()
+
 
 #DONE
 '''
