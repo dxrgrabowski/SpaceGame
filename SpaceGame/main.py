@@ -33,8 +33,6 @@ def main():
     lives = 5
     main_font = get_font(45)
     lost_font = get_font(60)
-
-    asteroidClock=0
     asteroids=[]
     enemies = []
     bosses=[]
@@ -60,7 +58,8 @@ def main():
 
         WIN.blit(lives_label, (10, 10))
         WIN.blit(level_label, (c.WIDTH - level_label.get_width() - 10, 10))
-
+        for boss in bosses:
+            boss.draw(WIN)
         for enemy in enemies:
             enemy.draw(WIN)
         for asteroid in asteroids:
@@ -88,17 +87,18 @@ def main():
                 continue
 #resp enemy
         
-        if len(enemies) == 0 and bosses.count()==0:
+        if len(enemies) == 0 and len(bosses)==0:
             level += 1
+            if level==2 and len(bosses)==0:
+                boss=Boss(c.boss1IMG,c.WIDTH/2-c.boss1IMG.get_width()/2,-75,1800,2)
+                bosses.append(boss)
             enemy_number,asteroid_number=Level.lvl_desc[level]
-            for i in range(enemy_number):
-                enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-1000, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
-                enemies.append(enemy)
+            if len(bosses)==0:
+                for i in range(enemy_number):
+                    enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
+                    enemies.append(enemy)
         
-        if level==5:
-            boss1=Boss(c.boss1IMG,c.WIDTH/2-88,-75,1800)
-            bosses.append(boss1)
-            
+        
 
 #Events
         for event in pygame.event.get():
@@ -117,7 +117,11 @@ def main():
             main_menu()
         if keys[pygame.K_UP]:
             asteroids.append(asteroid)
-#Collision        
+#Collision and move       
+        for boss in bosses[:]:
+            boss.move(0.2)
+            if boss.collision(player):
+                player.health -= 100
         for asteroid in asteroids[:]:
             asteroid.move()
             if asteroid.collision(player):

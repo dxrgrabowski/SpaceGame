@@ -22,7 +22,7 @@ enemy5=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\e
 enemy6=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\enemies', 'enemy_6.png')),(48,48))
 enemy7=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\enemies', 'enemy_7.png')),(48,48))
 enemy8=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\enemies', 'enemy_8.png')),(48,48))
-boss1IMG=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\enemies/boss_1')),(88,70))
+boss1IMG=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets\enemies/boss_1.png')),(88,70))
 #Bullet
 bullet1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets/bullets', 'bullet_small_1.png')),(22,22))
 bullet2=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame\Assets/bullets', 'bullet_small_2.png')),(22,22))

@@ -1,3 +1,4 @@
+from urllib.parse import MAX_CACHE_SIZE
 import pygame,random
 import constants as c
 
@@ -114,29 +115,31 @@ class Ship:
         return self.ship_img.get_height()
 
 class Boss:
-    def __init__(self,img,x, y,health):
+    def __init__(self,img,x, y,health,vx):
         self.x=x
         self.y=y
         self.img=img
         self.health=health
-    
-    def move(self,vy,vx):
+        self.max_health=health
+        self.vx=vx
+        self.mask=pygame.mask.from_surface(self.img)
+   
+    def move(self,vy):
         self.y += vy
-        self.x += vx
-        
-        if self.x<100:
-            vx = -vx
-        if self.x>c.WIDTH-200:
-            vx = -vx
+        if self.x==100 or self.x==800:
+            self.vx=-self.vx
+        self.x+=self.vx
+       
         
         xChange=pygame.USEREVENT
         pygame.time.set_timer(xChange,1500)
         for event in pygame.event.get():
             if event.type==xChange:
-                if(random.random()):
-                   vx = -vx 
-
-    
+                if random.random()==1:
+                   self.vx = -self.vx
+                 
+    def collision(self, obj):
+        return collide(self, obj)
     def shoot(self):
         #shootX=shootX
         #shootY=shootY
@@ -144,7 +147,14 @@ class Boss:
             laser = Laser(self.x+self.shootX, self.y+self.shootY, self.laser_img)
             self.lasers.append(laser)
             self.cool_down_counter = 2
-
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
+        self.healthbar(window)
+    
+    def healthbar(self, window):
+        if self.max_health!=self.health:
+            pygame.draw.rect(window, (255,0,0), (self.x, self.y -20, self.img.get_width(), 10))
+            pygame.draw.rect(window, (0,255,0), (self.x, self.y -20, self.img.get_width() * (self.health/self.max_health), 10))
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
