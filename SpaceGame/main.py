@@ -2,7 +2,7 @@ import pygame, sys, random, time
 import os
 from button import Button
 from volume import Volume
-from objects import Level,Boss,Booster,Laser,Asteroid,Player,Enemy,collide
+from objects import Level,Bosslvl5,Booster,Laser,Asteroid,Player,Enemy,collide
 import constants as c
 pygame.init()
 pygame.font.init()
@@ -13,12 +13,13 @@ pygame.font.init()
 -Level design
 -Plik konfiguracyjny opcji
 -Plik z zapisem
--Dodanie Bossow
+X-Dodanie Bossow
 -Statek gracza z postepem
 -Boostery,HP
 -Mozliwosc wyboru statku gracza
 -Zmiana Play, Quit, dodanie Resume
 -Healthbar z boku ekranu
+-uporządkowanie constants.py
 '''
 
 WIN = pygame.display.set_mode((c.WIDTH, c.HEIGHT))
@@ -26,6 +27,9 @@ pygame.display.set_caption("SkySpace by @Dexor")
 
 asteroidSpawn=pygame.USEREVENT
 pygame.time.set_timer(asteroidSpawn,c.FPS*30)
+xChange=pygame.USEREVENT
+pygame.time.set_timer(xChange,1500)
+
 
 def main():
     run = True
@@ -37,7 +41,6 @@ def main():
     enemies = []
     bosses=[]
     enemy_number,asteroid_number=Level.lvl_desc[1]
-    
     enemy_vel = 1
 
     laser_vel = 5
@@ -90,16 +93,14 @@ def main():
         if len(enemies) == 0 and len(bosses)==0:
             level += 1
             if level==2 and len(bosses)==0:
-                boss=Boss(c.boss1IMG,c.WIDTH/2-c.boss1IMG.get_width()/2,-75,1800,2)
+                boss=Bosslvl5(c.boss1IMG,c.WIDTH/2-c.boss1IMG.get_width()/2,-75,1800,2)
                 bosses.append(boss)
             enemy_number,asteroid_number=Level.lvl_desc[level]
             if len(bosses)==0:
                 for i in range(enemy_number):
                     enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
                     enemies.append(enemy)
-        
-        
-
+            
 #Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -108,7 +109,10 @@ def main():
             if event.type==asteroidSpawn:
                 asteroid=Asteroid(random.randrange(-20,c.WIDTH+50),-30,c.asteroid1)
                 asteroids.append(asteroid)
-
+            if event.type==xChange:
+                if len(bosses)!=0:
+                    if random.randint(0,1)==1:
+                        boss.vx = -boss.vx
 #Key binding
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
@@ -116,10 +120,13 @@ def main():
         if keys[pygame.K_ESCAPE]:
             main_menu()
         if keys[pygame.K_UP]:
-            asteroids.append(asteroid)
+            boss.leftRightshoot()
 #Collision and move       
         for boss in bosses[:]:
+            boss.death(bosses,boss)
             boss.move(0.2)
+            boss.move_lasers(laser_vel,player)
+            
             if boss.collision(player):
                 player.health -= 100
         for asteroid in asteroids[:]:
@@ -130,6 +137,7 @@ def main():
             if asteroid.y + asteroid.get_height() > c.HEIGHT:
                 asteroids.remove(asteroid)
         for enemy in enemies[:]:
+            enemy.death(enemies,enemy)
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
             if random.randrange(0, 2*60) == 1:
@@ -142,6 +150,7 @@ def main():
                 enemies.remove(enemy)
 
         player.move_lasers(-laser_vel, enemies)
+        player.move_lasers(-laser_vel, bosses)
 
 ######################################################################################################################
 def options_menu():
@@ -184,11 +193,11 @@ def main_menu():
                 WIN.blit(c.VOLUMEMUTE,(c.WIDTH-150,c.HEIGHT-150))
           
         playButton=Button(None, pos=(c.WIDTH/2, 320), 
-                            text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")
+                            text_input="PLAY", font=get_font(75), base_color="White", hovering_color="Blue")
         quitButton=Button(None, pos=(c.WIDTH/2, 420), 
-                            text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")     
+                            text_input="QUIT", font=get_font(75), base_color="White", hovering_color="Blue")     
         optionsButton=Button(None, pos=(c.WIDTH/2, 520), 
-                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="Blue")     
+                            text_input="OPTIONS", font=get_font(75), base_color="White", hovering_color="Blue")     
         
         #optionsButton=Volume(c.buttonOptionsimg,pos=(c.WIDTH/2,520))
         

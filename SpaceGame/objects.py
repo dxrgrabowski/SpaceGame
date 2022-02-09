@@ -115,6 +115,7 @@ class Ship:
         return self.ship_img.get_height()
 
 class Boss:
+    COOLDOWN=15
     def __init__(self,img,x, y,health,vx):
         self.x=x
         self.y=y
@@ -122,39 +123,83 @@ class Boss:
         self.health=health
         self.max_health=health
         self.vx=vx
+        self.lasers = []
         self.mask=pygame.mask.from_surface(self.img)
    
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
+        for laser in self.lasers:
+            laser.draw(window)
+        self.healthbar(window)
     def move(self,vy):
         self.y += vy
         if self.x==100 or self.x==800:
             self.vx=-self.vx
         self.x+=self.vx
-       
-        
-        xChange=pygame.USEREVENT
-        pygame.time.set_timer(xChange,1500)
-        for event in pygame.event.get():
-            if event.type==xChange:
-                if random.random()==1:
-                   self.vx = -self.vx
-                 
-    def collision(self, obj):
-        return collide(self, obj)
-    def shoot(self):
-        #shootX=shootX
-        #shootY=shootY
-        if self.cool_down_counter == 0:
-            laser = Laser(self.x+self.shootX, self.y+self.shootY, self.laser_img)
-            self.lasers.append(laser)
-            self.cool_down_counter = 2
-    def draw(self, window):
-        window.blit(self.img, (self.x, self.y))
-        self.healthbar(window)
-    
+    def death(self, enemies,enemy):
+        if self.health<=0:
+            enemies.remove(enemy)
     def healthbar(self, window):
         if self.max_health!=self.health:
             pygame.draw.rect(window, (255,0,0), (self.x, self.y -20, self.img.get_width(), 10))
             pygame.draw.rect(window, (0,255,0), (self.x, self.y -20, self.img.get_width() * (self.health/self.max_health), 10))
+    def collision(self, obj):
+        return collide(self, obj)
+    
+    def move_lasers(self, vel, obj):
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(c.HEIGHT+120):
+                self.lasers.remove(laser)
+            elif laser.collision(obj):
+                obj.health -= 30
+                self.lasers.remove(laser)
+    
+    def cooldown(self):
+        if self.cool_down_counter >= self.COOLDOWN:
+            self.cool_down_counter = 0
+        elif self.cool_down_counter > 0:
+            self.cool_down_counter += 1
+
+class Bosslvl5(Boss):
+    BULLET = {
+                "left": (c.bbullet_left1),
+                "staright": (c.bbullet_straight1),
+                "right": (c.bbullet_right1),
+                "loaded": (c.bbullet_loaded1)
+                }
+    def __init__(self, img, x, y, health, vx):
+        super().__init__(img, x, y, health, vx)
+        self.last = pygame.time.get_ticks()
+    #choice(["1","2"])
+    
+    def leftRightshoot(self):
+        fireCD=1
+        now=pygame.time.get_ticks()
+        if fireCD==1:
+            for x in range(5):
+                fireCD=0
+                if now-self.last>=350:
+                    self.last=now
+                    laser = Laser(self.x+12, self.y+64, c.bbullet_left1)
+                    self.lasers.append(laser)
+                    if now-self.last>=350:
+                        self.last=now
+                        laser = Laser(self.x+76, self.y+64, c.bbullet_right1)
+                        self.lasers.append(laser)
+                        if now-self.last>=1000:
+                            fireCD=1
+                
+
+    def shoot(self):
+        laser = Laser(self.x+12, self.y+64, x)
+        self.lasers.append(laser)
+        laser = Laser(self.x+76, self.y+64, x)
+        self.lasers.append(laser)
+        laser = Laser(self.x+30, self.y+62, x)
+        self.lasers.append(laser)
+        laser = Laser(self.x+50, self.y+62, x)
+        self.lasers.append(laser)
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -173,7 +218,7 @@ class Player(Ship):
             else:
                 for obj in objs:
                     if laser.collision(obj):
-                        objs.remove(obj)
+                        obj.health-=100
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -212,6 +257,10 @@ class Enemy(Ship):
 
     def move(self, vel):
         self.y += vel
+
+    def death(self, enemies,enemy):
+        if self.health<=0:
+            enemies.remove(enemy)
 
     def shoot(self):
         if self.cool_down_counter == 0:
