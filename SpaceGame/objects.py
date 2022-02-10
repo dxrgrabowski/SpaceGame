@@ -174,22 +174,17 @@ class Bosslvl5(Boss):
     #choice(["1","2"])
     
     def leftRightshoot(self):
-        fireCD=1
         now=pygame.time.get_ticks()
-        if fireCD==1:
+        if now-self.last>=1000:
             for x in range(5):
-                fireCD=0
                 if now-self.last>=350:
-                    self.last=now
                     laser = Laser(self.x+12, self.y+64, c.bbullet_left1)
                     self.lasers.append(laser)
                     if now-self.last>=350:
                         self.last=now
                         laser = Laser(self.x+76, self.y+64, c.bbullet_right1)
                         self.lasers.append(laser)
-                        if now-self.last>=1000:
-                            fireCD=1
-                
+        
 
     def shoot(self):
         laser = Laser(self.x+12, self.y+64, x)
