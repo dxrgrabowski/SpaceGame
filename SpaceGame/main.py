@@ -216,7 +216,6 @@ def summary(level):
                     main()
         pygame.display.update()
 
-
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("SpaceGame/assets/font.ttf", size)
 def main_menu():
@@ -230,7 +229,7 @@ def main_menu():
     while run:
         WIN.blit(c.BG, (0,0))
         menuPos=pygame.mouse.get_pos()
-        WIN.blit(c.LOGO, (c.WIDTH/2 - c.LOGO.get_width()/2, 50))
+        WIN.blit(c.LOGO, (c.WIDTH/2 - c.LOGO.get_width()/2, 25))
         
         match volume_var:
             case 1:
@@ -245,20 +244,33 @@ def main_menu():
           
         playButton=Button(None, pos=(190, 320), 
                             text_input="PLAY", font=get_font(75), base_color="White", hovering_color="Blue")
-        optionsButton=Button(None, pos=(300, 420), 
-                            text_input="OPTIONS", font=get_font(75), base_color="White", hovering_color="Blue")     
+        optionsButton=Button(None, pos=(190, 420), 
+                            text_input="OPTI", font=get_font(75), base_color="White", hovering_color="Blue")     
         quitButton=Button(None, pos=(190, 520), 
                             text_input="QUIT", font=get_font(75), base_color="White", hovering_color="Blue")     
-        
-        #optionsButton=Volume(c.buttonOptionsimg,pos=(c.WIDTH/2,520))
-        
-        
-        volumeButton=Volume(c.VOLUMEHIGH,pos=(c.WIDTH-100,c.HEIGHT-100))
+        upgrade=Button(None, pos=(c.WIDTH/2+200, 700), 
+                            text_input="UPGRADE", font=get_font(60), base_color="White", hovering_color="Red")
+        shiplvl= get_font(25).render("ship level: "+ str(c.shiplvl), 1, "#edda5a")
+        currentbalance= get_font(25).render("balance: "+str(c.money), 1, "#edda5a")
 
+        WIN.blit(currentbalance, (c.WIDTH/2+20, 280))
+        WIN.blit(shiplvl, (c.WIDTH/2+20, 320))
+        volumeButton=Volume(c.VOLUMEHIGH,pos=(c.WIDTH-100,c.HEIGHT-100))
+        match c.shiplvl:
+            case 1:
+              shipShowcase=pygame.transform.scale(c.SHIP1,(240,240))  
+            case 2:
+              shipShowcase=pygame.transform.scale(c.SHIP2,(240,240))              
+            case 3:
+              shipShowcase=pygame.transform.scale(c.SHIP3,(240,240)) 
+            case 4:
+              shipShowcase=pygame.transform.scale(c.SHIP4,(240,240)) 
+              
+        WIN.blit(shipShowcase, (c.WIDTH/2+80, 400)) 
         #for volume in [optionsButton]:
         #    volume.hooverChange(menuPos,c.HbuttonOptionsimg)
         #    volume.draw(WIN)
-        for button in [playButton,quitButton,optionsButton]:
+        for button in [playButton,quitButton,optionsButton,upgrade]:
             button.changeColor(menuPos)
             button.update(WIN)
 
@@ -281,7 +293,10 @@ def main_menu():
                     elif volume_var==0:
                         volume_var=1
                 if optionsButton.checkForInput(menuPos):
-                    options_menu()            
+                    options_menu()  
+                if upgrade.checkForInput(menuPos):
+                    c.shiplvl+=1
+
         pygame.display.update()
     pygame.quit()
 main_menu()

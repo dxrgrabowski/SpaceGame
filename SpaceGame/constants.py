@@ -4,15 +4,13 @@ import pygame,os
 WIDTH, HEIGHT = 1000, 1000
 FPS=100
 money=0  #type: str
-shiplvl=0
-
-#Load images
-RED_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_red_small.png"))
-GREEN_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_green_small.png"))
-BLUE_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_blue_small.png"))
+shiplvl=None
 
 #Player
 SHIP1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_1.png')),(48,48))
+SHIP2=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_2.png')),(48,48))
+SHIP3=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_3.png')),(48,48))
+SHIP4=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_4.png')),(48,48))
 
 #Enemy
 enemy1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/enemy_1.png')),(48,48))

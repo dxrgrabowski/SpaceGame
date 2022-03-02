@@ -206,7 +206,15 @@ class Bosslvl5(Boss):
 class Player(Ship):
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
-        self.ship_img = c.SHIP1
+        match c.shiplvl:
+            case 1:
+                self.ship_img = c.SHIP1
+            case 2:
+                self.ship_img = c.SHIP2
+            case 3:
+                self.ship_img = c.SHIP3
+            case 4:
+                self.ship_img = c.SHIP4        
         self.laser_img = c.bullet5
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
@@ -278,7 +286,7 @@ def collide(obj1, obj2):
 def makeSaveFile():
     f=open("SpaceGame/save.txt","w")
     f.write("0\n") #Money
-    f.write("0\n") #Shiplvl
+    f.write("1\n") #Shiplvl
     f.close()
 def loadFromFile():
     f=open("SpaceGame/save.txt","r")
