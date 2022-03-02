@@ -87,8 +87,8 @@ def main():
             lost_count += 1
         if lost:
             c.money+=level
-            summary()
             run=False
+            summary(level)
 #resp enemy
         
         if len(enemies) == 0 and len(bosses)==0:
@@ -166,23 +166,55 @@ def options_menu():
         WIN.blit(c.BG, (0,0))
         menuPos=pygame.mouse.get_pos()
         
-def summary():
+        pygame.display.update()    
+
+def summary(level):
+    run=True
     f=open("SpaceGame/save.txt","w")
     f.write(str(c.money)+"\n") #Money
     f.write(str(c.shiplvl)+"\n") #Shiplvl
     f.close()
-    while True:
-        WIN.blit(c.BG, (0,0))
+    pygame.mouse.set_visible(1)
+    pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
+    pygame.mixer.music.play(-1)
+    WIN.blit(c.BG, (0,0))
+    plus=get_font(50).render("+", 1, (255,255,255))
+    equal=get_font(50).render("=", 1, (255,255,255))
+    bbalancev = get_font(60).render(str(c.money-level), 1, "#383733")
+    earningsv = get_font(60).render(str(level), 1, "#2f8022")
+    currentbalancev= get_font(60).render(str(c.money), 1, "#bfb152")
+    WIN.blit(bbalancev, (c.WIDTH/2 - bbalancev.get_width()/2-300, 320))
+    WIN.blit(earningsv, (c.WIDTH/2 - earningsv.get_width()/2, 320))
+    WIN.blit(currentbalancev, (c.WIDTH/2 - currentbalancev.get_width()/2+300, 320))
+    WIN.blit(plus, (c.WIDTH/2 - plus.get_width()/2-150, 320))
+    WIN.blit(equal, (c.WIDTH/2 - equal.get_width()/2+150, 320))
+    
+    bbalance = get_font(22).render("balance before: ", 1, "#383733")
+    earnings = get_font(22).render("earnings: ", 1, "#2f8022")
+    currentbalance= get_font(22).render("current balance: ", 1, "#bfb152")
+    WIN.blit(bbalance, (c.WIDTH/2 - bbalance.get_width()/2-300, 250))
+    WIN.blit(earnings, (c.WIDTH/2 - earnings.get_width()/2, 250))
+    WIN.blit(currentbalance, (c.WIDTH/2 - currentbalance.get_width()/2+300, 250))
+    while run:
         menuPos=pygame.mouse.get_pos()
-        returnButton=Button(None, pos=(c.WIDTH/2,680), 
-                            text_input="RETURN", font=get_font(75), base_color="White", hovering_color="Blue")
-        for button in [returnButton]:
+        playButton=Button(None, pos=(c.WIDTH/2-200,650), 
+                            text_input="PLAY AGAIN", font=get_font(50), base_color="White", hovering_color="Blue")
+        returnButton=Button(None, pos=(c.WIDTH/2+300,650), 
+                            text_input="RETURN", font=get_font(50), base_color="White", hovering_color="Blue")
+        for button in [returnButton,playButton]:
             button.changeColor(menuPos)
             button.update(WIN)
-        if returnButton.checkForInput(menuPos):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run=False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                if returnButton.checkForInput(menuPos):
+                    main_menu()
+                if playButton.checkForInput(menuPos):
                     pygame.mixer.music.fadeout(240)
                     main()
-    
+        pygame.display.update()
 
 
 def get_font(size): # Returns Press-Start-2P in the desired size
@@ -211,12 +243,12 @@ def main_menu():
                 pygame.mixer.music.set_volume(0.0)
                 WIN.blit(c.VOLUMEMUTE,(c.WIDTH-150,c.HEIGHT-150))
           
-        playButton=Button(None, pos=(c.WIDTH/2, 320), 
+        playButton=Button(None, pos=(190, 320), 
                             text_input="PLAY", font=get_font(75), base_color="White", hovering_color="Blue")
-        quitButton=Button(None, pos=(c.WIDTH/2, 420), 
-                            text_input="QUIT", font=get_font(75), base_color="White", hovering_color="Blue")     
-        optionsButton=Button(None, pos=(c.WIDTH/2, 520), 
+        optionsButton=Button(None, pos=(300, 420), 
                             text_input="OPTIONS", font=get_font(75), base_color="White", hovering_color="Blue")     
+        quitButton=Button(None, pos=(190, 520), 
+                            text_input="QUIT", font=get_font(75), base_color="White", hovering_color="Blue")     
         
         #optionsButton=Volume(c.buttonOptionsimg,pos=(c.WIDTH/2,520))
         
