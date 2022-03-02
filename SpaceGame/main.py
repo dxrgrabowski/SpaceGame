@@ -2,7 +2,7 @@ import pygame, sys, random, time
 import os
 from button import Button
 from volume import Volume
-from objects import Level,Bosslvl5,Booster,Laser,Asteroid,Player,Enemy,collide
+from objects import *
 import constants as c
 pygame.init()
 pygame.font.init()
@@ -30,6 +30,9 @@ pygame.time.set_timer(asteroidSpawn,c.FPS*30)
 xChange=pygame.USEREVENT
 pygame.time.set_timer(xChange,1500)
 
+if os.path.exists("SpaceGame/save.txt")==False:
+    makeSaveFile()
+loadFromFile()
 
 def main():
     run = True
@@ -83,11 +86,9 @@ def main():
             lost = True
             lost_count += 1
         if lost:
-            if lost_count > c.FPS * 3:
-                run = False
-                #Tutaj bedzie plansza z podsumowaniem
-            else:
-                continue
+            c.money+=level
+            summary()
+            run=False
 #resp enemy
         
         if len(enemies) == 0 and len(bosses)==0:
@@ -120,7 +121,8 @@ def main():
         if keys[pygame.K_ESCAPE]:
             main_menu()
         if keys[pygame.K_UP]:
-            boss.leftRightshoot()
+            boss.leftRightshoot(WIN)
+            
 #Collision and move       
         for boss in bosses[:]:
             boss.death(bosses,boss)
@@ -164,6 +166,23 @@ def options_menu():
         WIN.blit(c.BG, (0,0))
         menuPos=pygame.mouse.get_pos()
         
+def summary():
+    f=open("SpaceGame/save.txt","w")
+    f.write(str(c.money)+"\n") #Money
+    f.write(str(c.shiplvl)+"\n") #Shiplvl
+    f.close()
+    while True:
+        WIN.blit(c.BG, (0,0))
+        menuPos=pygame.mouse.get_pos()
+        returnButton=Button(None, pos=(c.WIDTH/2,680), 
+                            text_input="RETURN", font=get_font(75), base_color="White", hovering_color="Blue")
+        for button in [returnButton]:
+            button.changeColor(menuPos)
+            button.update(WIN)
+        if returnButton.checkForInput(menuPos):
+                    pygame.mixer.music.fadeout(240)
+                    main()
+    
 
 
 def get_font(size): # Returns Press-Start-2P in the desired size

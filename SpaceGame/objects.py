@@ -162,39 +162,46 @@ class Boss:
             self.cool_down_counter += 1
 
 class Bosslvl5(Boss):
-    BULLET = {
-                "left": (c.bbullet_left1),
-                "staright": (c.bbullet_straight1),
-                "right": (c.bbullet_right1),
-                "loaded": (c.bbullet_loaded1)
-                }
     def __init__(self, img, x, y, health, vx):
         super().__init__(img, x, y, health, vx)
-        self.last = pygame.time.get_ticks()
-    #choice(["1","2"])
+        self.last = 0
+        self.secondShot=1
     
-    def leftRightshoot(self):
+    def topleft(self,window):
+        laser = Laser(self.x+12, self.y+64, random.choice([c.bbullet_left1,c.bbullet_straight1]))
+        self.lasers.append(laser)
+        laser.draw(window)
+    def topright(self,window):
+        laser = Laser(self.x+76, self.y+64, random.choice([c.bbullet_right1,c.bbullet_straight1]))
+        self.lasers.append(laser)
+        laser.draw(window)
+    def midleft(self,window):
+        laser = Laser(self.x+30, self.y+62, c.bbullet_straight1)
+        self.lasers.append(laser)
+        laser.draw(window)
+    def midright(self,window):
+        laser = Laser(self.x+50, self.y+62, c.bbullet_straight1)
+        self.lasers.append(laser)
+        laser.draw(window)
+    
+    def leftRightshoot(self,window):
         now=pygame.time.get_ticks()
-        if now-self.last>=1000:
-            for x in range(5):
+        for x in range(5): 
+            if self.secondShot==1:
+                self.secondShot=0 
                 if now-self.last>=350:
-                    laser = Laser(self.x+12, self.y+64, c.bbullet_left1)
-                    self.lasers.append(laser)
-                    if now-self.last>=350:
-                        self.last=now
-                        laser = Laser(self.x+76, self.y+64, c.bbullet_right1)
-                        self.lasers.append(laser)
-        
-
-    def shoot(self):
-        laser = Laser(self.x+12, self.y+64, x)
-        self.lasers.append(laser)
-        laser = Laser(self.x+76, self.y+64, x)
-        self.lasers.append(laser)
-        laser = Laser(self.x+30, self.y+62, x)
-        self.lasers.append(laser)
-        laser = Laser(self.x+50, self.y+62, x)
-        self.lasers.append(laser)
+                    print(1)
+                    self.last=now
+                    self.topleft(window)
+                    while True:
+                        now=pygame.time.get_ticks()
+                        while now-self.last>=350:
+                            print(2)
+                            self.last=now
+                            self.topright(window) 
+                            self.secondShot=1
+                            pass
+                        break
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -267,3 +274,14 @@ def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
+
+def makeSaveFile():
+    f=open("SpaceGame/save.txt","w")
+    f.write("0\n") #Money
+    f.write("0\n") #Shiplvl
+    f.close()
+def loadFromFile():
+    f=open("SpaceGame/save.txt","r")
+    c.money=int(f.readline()) #Money
+    c.shiplvl=int(f.readline()) #Shiplvl
+    f.close()

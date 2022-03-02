@@ -3,7 +3,8 @@ import pygame,os
 #Constants
 WIDTH, HEIGHT = 1000, 1000
 FPS=100
-
+money=0  #type: str
+shiplvl=0
 
 #Load images
 RED_SPACE_SHIP = pygame.image.load(os.path.join("test/assets", "pixel_ship_red_small.png"))
