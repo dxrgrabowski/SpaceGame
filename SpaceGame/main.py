@@ -1,4 +1,4 @@
-import pygame, sys, random, time
+import pygame, sys, random, ptext
 import os
 from button import Button
 from volume import Volume
@@ -7,18 +7,18 @@ import constants as c
 from coin import Coin
 pygame.init()
 pygame.font.init()
-
 #TO DO
 '''
--
+-Więcej dźwięków
+-pauza
 -Level design
 -Plik konfiguracyjny opcji
--Plik z zapisem
+X-Plik z zapisem
 X-Dodanie Bossow
--Statek gracza z postepem
+X-Statek gracza z postepem
+X-Mozliwosc wyboru statku gracza
+X-Zmiana Play, Quit, dodanie Resume
 -Boostery,HP
--Mozliwosc wyboru statku gracza
--Zmiana Play, Quit, dodanie Resume
 -Healthbar z boku ekranu
 -uporządkowanie constants.py
 '''
@@ -36,6 +36,7 @@ if os.path.exists("SpaceGame/save.txt")==False:
 loadFromFile()
 
 def main():
+    pygame.mouse.set_visible(0)
     run = True
     level = 0
     lives = 5
@@ -44,18 +45,25 @@ def main():
     asteroids=[]
     enemies = []
     bosses=[]
-    enemy_number,asteroid_number=Level.lvl_desc[1]
+    enemy_number=Level.lvl_desc[1]
     enemy_vel = 1
 
     laser_vel = 5
 
     clock = pygame.time.Clock()
-
     lost = False
     lost_count = 0
     x,y=pygame.mouse.get_pos()
     player=Player(x,y)
-    pygame.mouse.set_visible(0)
+    match c.shiplvl:
+        case 1:
+            player.health=100
+        case 2:
+            player.health=200
+        case 3:
+            player.health=400
+        case 4:
+            player.health=800
     
     def redraw_window():
         WIN.blit(c.BG, (0,0))
@@ -76,6 +84,7 @@ def main():
         if lost:
             lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
             WIN.blit(lost_label, (c.WIDTH/2 - lost_label.get_width()/2, 350))
+            pygame.time.delay(3000)
 
         pygame.display.update()
 
@@ -97,7 +106,7 @@ def main():
             if level==2 and len(bosses)==0:
                 boss=Bosslvl5(c.boss1IMG,c.WIDTH/2-c.boss1IMG.get_width()/2,-75,1800,2)
                 bosses.append(boss)
-            enemy_number,asteroid_number=Level.lvl_desc[level]
+            enemy_number=Level.lvl_desc[level]
             if len(bosses)==0:
                 for i in range(enemy_number):
                     enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
@@ -233,8 +242,8 @@ def main_menu():
     pygame.mixer.music.play(-1)
     
     moving_sprites = pygame.sprite.Group()
-    balancecoin = Coin(c.WIDTH/2+280, 275)
-    upgradecoin=Coin(c.WIDTH/2+400, 745)
+    balancecoin = Coin(c.WIDTH/2+295, 275)
+    upgradecoin=Coin(c.WIDTH/2+395, 745)
     moving_sprites.add(balancecoin,upgradecoin)
     
     while run:
@@ -270,6 +279,7 @@ def main_menu():
         WIN.blit(currentbalance, (c.WIDTH/2+20, 280))
         WIN.blit(shiplvl, (c.WIDTH/2+20, 320))
         volumeButton=Volume(c.VOLUMEHIGH,pos=(c.WIDTH-100,c.HEIGHT-100))
+        
         match c.shiplvl:
             case 1:
               shipShowcase=pygame.transform.scale(c.SHIP1,(240,240)) 
@@ -314,8 +324,40 @@ def main_menu():
                 if optionsButton.checkForInput(menuPos):
                     options_menu()  
                 if upgrade.checkForInput(menuPos):
-                    c.shiplvl+=1
+                    if int(c.money)>=100 and c.shiplvl==1:
+                        c.shiplvl=2
+                        c.money-=100
+                        saveToFile()
+                    elif c.money>=150 and c.shiplvl==2:
+                        c.shiplvl=3
+                        c.money-=150
+                        saveToFile()
+                    elif c.money>=250 and c.shiplvl==3:
+                        c.shiplvl=4
+                        c.money-=250
+                        saveToFile()
+                    else:
+                        if int(c.money)<100 and c.shiplvl==1:
+                            c.ifunds=True
+                        elif c.money<150 and c.shiplvl==2:
+                            c.ifunds=True
+                        elif c.money<250 and c.shiplvl==3:
+                            c.ifunds=True
+                        else:
+                            c.maxlvlreached=True     
 
+        if c.maxlvlreached:
+            c.alfa=c.alfa-0.01
+            ptext.draw('You reached the maximum level!', (c.WIDTH/2-12,788), color=(255,255,255), fontsize=40, alpha=c.alfa)            
+            if c.alfa<=0:
+                c.maxlvlreached=False
+                c.alfa=1
+        if c.ifunds:
+            c.alfa=c.alfa-0.01
+            ptext.draw('Inufficient funds!', (c.WIDTH/2-12,788), color=(255,255,255), fontsize=50, alpha=c.alfa)             
+            if c.alfa<=0:
+                c.ifunds=False
+                c.alfa=1
         pygame.display.update()
     pygame.quit()
 main_menu()

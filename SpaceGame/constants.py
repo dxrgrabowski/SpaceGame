@@ -3,9 +3,13 @@ import pygame,os
 #Constants
 WIDTH, HEIGHT = 1000, 1000
 FPS=100
-money=0  #type: str
-shiplvl=None
+money=None #type: int
+shiplvl=None    #type: int
+alfa=1
 
+#Communicates
+ifunds=0
+maxlvlreached=0
 #Player
 SHIP1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_1.png')),(48,48))
 SHIP2=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/playerShips/Ship_2.png')),(48,48))

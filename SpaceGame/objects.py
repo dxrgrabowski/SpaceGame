@@ -18,16 +18,35 @@ class Booster:
 class Level:
     lvl_desc={
     #lvlN (enemiesN,asteroidsN) 
-        1:(5,2),
-        2:(7,3),
-        3:(10,3),
-        4:(13,4),
-        5:(17,4),
-        6:(20,5),
-        7:(23,5),
-        8:(27,6),
-        9:(30,7),
-        10:(33,7)
+        1:(5),
+        2:(7),
+        3:(10),
+        4:(13),
+        5:(17),
+        6:(20),
+        7:(23),
+        8:(27),
+        9:(30),
+        10:(33),
+        11:(36),
+        12:(39),
+        13:(42),
+        14:(45),
+        15:(48),
+        16:(51),
+        17:(54),
+        18:(57),
+        19:(60),
+        20:(63),
+        21:(66),
+        22:(69),
+        23:(72),
+        24:(75),
+        25:(78),
+        26:(81),
+        27:(84),
+
+
     }
 
 class Laser: 
@@ -183,7 +202,7 @@ class Bosslvl5(Boss):
         laser = Laser(self.x+50, self.y+62, c.bbullet_straight1)
         self.lasers.append(laser)
         laser.draw(window)
-    
+    # clock.tick(15)
     def leftRightshoot(self,window):
         now=pygame.time.get_ticks()
         for x in range(5): 
@@ -292,4 +311,9 @@ def loadFromFile():
     f=open("SpaceGame/save.txt","r")
     c.money=int(f.readline()) #Money
     c.shiplvl=int(f.readline()) #Shiplvl
+    f.close()
+def saveToFile():
+    f=open("SpaceGame/save.txt","w")
+    f.write(str(c.money)+"\n")
+    f.write(str(c.shiplvl)+"\n") 
     f.close()
