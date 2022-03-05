@@ -4,6 +4,7 @@ from button import Button
 from volume import Volume
 from objects import *
 import constants as c
+from coin import Coin
 pygame.init()
 pygame.font.init()
 
@@ -166,7 +167,13 @@ def options_menu():
         WIN.blit(c.BG, (0,0))
         menuPos=pygame.mouse.get_pos()
         
-        pygame.display.update()    
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run=False
+
+        pygame.display.update()  
+    pygame.quit() 
+  
 
 def summary(level):
     run=True
@@ -225,12 +232,19 @@ def main_menu():
     pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
     
-
+    moving_sprites = pygame.sprite.Group()
+    balancecoin = Coin(c.WIDTH/2+280, 275)
+    upgradecoin=Coin(c.WIDTH/2+400, 745)
+    moving_sprites.add(balancecoin,upgradecoin)
+    
     while run:
-        WIN.blit(c.BG, (0,0))
+        WIN.blit(c.MMBG, (0,0))
         menuPos=pygame.mouse.get_pos()
         WIN.blit(c.LOGO, (c.WIDTH/2 - c.LOGO.get_width()/2, 25))
         
+        moving_sprites.draw(WIN)
+        moving_sprites.update()
+
         match volume_var:
             case 1:
                 pygame.mixer.music.set_volume(0.7)
@@ -250,22 +264,27 @@ def main_menu():
                             text_input="QUIT", font=get_font(75), base_color="White", hovering_color="Blue")     
         upgrade=Button(None, pos=(c.WIDTH/2+200, 700), 
                             text_input="UPGRADE", font=get_font(60), base_color="White", hovering_color="Red")
-        shiplvl= get_font(25).render("ship level: "+ str(c.shiplvl), 1, "#edda5a")
-        currentbalance= get_font(25).render("balance: "+str(c.money), 1, "#edda5a")
+        shiplvl= get_font(25).render("ship level:"+ str(c.shiplvl), 1, "#edda5a")
+        currentbalance= get_font(25).render("balance:"+str(c.money), 1, "#edda5a")
 
         WIN.blit(currentbalance, (c.WIDTH/2+20, 280))
         WIN.blit(shiplvl, (c.WIDTH/2+20, 320))
         volumeButton=Volume(c.VOLUMEHIGH,pos=(c.WIDTH-100,c.HEIGHT-100))
         match c.shiplvl:
             case 1:
-              shipShowcase=pygame.transform.scale(c.SHIP1,(240,240))  
+              shipShowcase=pygame.transform.scale(c.SHIP1,(240,240)) 
+              upgradecost= get_font(25).render("money needed:"+str(100), 1, "#edda5a") 
             case 2:
-              shipShowcase=pygame.transform.scale(c.SHIP2,(240,240))              
+              shipShowcase=pygame.transform.scale(c.SHIP2,(240,240)) 
+              upgradecost= get_font(25).render("money needed:"+str(150), 1, "#edda5a")             
             case 3:
               shipShowcase=pygame.transform.scale(c.SHIP3,(240,240)) 
+              upgradecost= get_font(25).render("money needed:"+str(250), 1, "#edda5a")
             case 4:
               shipShowcase=pygame.transform.scale(c.SHIP4,(240,240)) 
-              
+              upgradecost= get_font(25).render("money needed:"+str(400), 1, "#edda5a")
+        
+        WIN.blit(upgradecost, (c.WIDTH/2-10, 750))      
         WIN.blit(shipShowcase, (c.WIDTH/2+80, 400)) 
         #for volume in [optionsButton]:
         #    volume.hooverChange(menuPos,c.HbuttonOptionsimg)
