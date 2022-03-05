@@ -38,7 +38,6 @@ loadFromFile()
 def main():
     pygame.mouse.set_visible(0)
     run = True
-    level = 0
     lives = 5
     main_font = get_font(45)
     lost_font = get_font(60)
@@ -69,7 +68,7 @@ def main():
         WIN.blit(c.BG, (0,0))
         # draw text
         lives_label = main_font.render(f"Lives: {lives}", 1, (255,255,255))
-        level_label = main_font.render(f"Level: {level}", 1, (255,255,255))
+        level_label = main_font.render(f"Level: {c.level}", 1, (255,255,255))
 
         WIN.blit(lives_label, (10, 10))
         WIN.blit(level_label, (c.WIDTH - level_label.get_width() - 10, 10))
@@ -96,17 +95,17 @@ def main():
             lost = True
             lost_count += 1
         if lost:
-            c.money+=level
+            c.money+=c.level
             run=False
-            summary(level)
+            summary(c.level)
 #resp enemy
         
         if len(enemies) == 0 and len(bosses)==0:
-            level += 1
-            if level==2 and len(bosses)==0:
+            c.level += 1
+            if c.level==2 and len(bosses)==0:
                 boss=Bosslvl5(c.boss1IMG,c.WIDTH/2-c.boss1IMG.get_width()/2,-75,1800,2)
                 bosses.append(boss)
-            enemy_number=Level.lvl_desc[level]
+            enemy_number=Level.lvl_desc[c.level]
             if len(bosses)==0:
                 for i in range(enemy_number):
                     enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
@@ -182,7 +181,53 @@ def options_menu():
 
         pygame.display.update()  
     pygame.quit() 
-  
+
+def levelchoose():
+    run=True
+
+    while run:
+        WIN.blit(c.MMBG, (0,0))
+        menuPos=pygame.mouse.get_pos()
+        ptext.draw('Select the level you want to jump to\n (The higher the level, the more enemies):', (130,60), color=(255,255,255),gcolor="purple", fontsize=60, alpha=1)
+
+        easyShowcase=pygame.transform.scale2x(c.boss1IMG)
+        mediumShowcase=pygame.transform.scale2x(c.boss3IMG)
+        hardShowcase=pygame.transform.scale2x(c.boss4IMG) 
+
+        easyButton=Button(None, pos=(c.WIDTH-860, 720), 
+                            text_input="EASY", font=get_font(55), base_color="White", hovering_color="green")
+        mediumButton=Button(None, pos=(c.WIDTH/2, 720), 
+                            text_input="MEDIUM", font=get_font(55), base_color="White", hovering_color="blue")
+        hardButton=Button(None, pos=(c.WIDTH-140, 720), 
+                            text_input="HARD", font=get_font(55), base_color="White", hovering_color="Red")
+        ptext.draw('You start at level 1', (c.WIDTH-985, 780), color=(255,255,255),gcolor="purple", fontsize=45, alpha=0.8)
+        ptext.draw('You start at level 10', (c.WIDTH/2-150, 780), color=(255,255,255),gcolor="purple", fontsize=45, alpha=0.8)
+        ptext.draw('You start at level 20', (c.WIDTH-140-150, 780), color=(255,255,255),gcolor="purple", fontsize=45, alpha=0.8)
+        #Boss ships
+        WIN.blit(easyShowcase, (c.WIDTH-860-c.boss1IMG.get_width(), 410))
+        WIN.blit(mediumShowcase, (c.WIDTH/2-c.boss3IMG.get_width(), 380)) 
+        WIN.blit(hardShowcase, (c.WIDTH-140-c.boss4IMG.get_width()-10, 380)) 
+
+        for button in [easyButton,mediumButton,hardButton]:
+            button.changeColor(menuPos)
+            button.update(WIN)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run=False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if easyButton.checkForInput(menuPos):
+                    c.level=0
+                    main()
+                if mediumButton.checkForInput(menuPos):
+                    c.level=9
+                    main()
+                if hardButton.checkForInput(menuPos):
+                    c.level=19
+                    main()
+
+        pygame.display.update()  
+    pygame.quit() 
 
 def summary(level):
     run=True
@@ -282,7 +327,7 @@ def main_menu():
         
         match c.shiplvl:
             case 1:
-              shipShowcase=pygame.transform.scale(c.SHIP1,(240,240)) 
+              shipShowcase=pygame.transform.scale(c.SHIP1,(240,240)) #SKALA DO POPRAWY
               upgradecost= get_font(25).render("money needed:"+str(100), 1, "#edda5a") 
             case 2:
               shipShowcase=pygame.transform.scale(c.SHIP2,(240,240)) 
@@ -310,6 +355,7 @@ def main_menu():
                 pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                 if playButton.checkForInput(menuPos):
                     pygame.mixer.music.fadeout(240)
+                    levelchoose()
                     main()
                 if quitButton.checkForInput(menuPos):
                     pygame.quit()

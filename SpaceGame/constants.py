@@ -6,6 +6,7 @@ FPS=100
 money=None #type: int
 shiplvl=None    #type: int
 alfa=1
+level=None
 
 #Communicates
 ifunds=0
@@ -26,6 +27,8 @@ enemy6=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/e
 enemy7=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/enemy_7.png')),(48,48))
 enemy8=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/enemy_8.png')),(48,48))
 boss1IMG=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/boss_1.png')),(88,70))
+boss3IMG=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/boss_3.png')),(100,104))
+boss4IMG=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/enemies/boss_4.png')),(104,98))
 #Bullet bbullet==boss bullet int==boss level
 bbullet_left1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/bullets/boss_left_1.png')),(21,30))
 bbullet_right1=pygame.transform.scale(pygame.image.load(os.path.join('SpaceGame/Assets/bullets/boss_right_1.png')),(21,30))
