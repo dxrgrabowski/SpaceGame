@@ -15,9 +15,10 @@ class Booster:
     def move(self, vel):
         self.y += vel
         
+
+#Level design
 class Level:
     lvl_desc={
-    #lvlN (enemiesN,asteroidsN) 
         1:(5),
         2:(7),
         3:(10),
@@ -94,44 +95,7 @@ class Asteroid:
     def off_screen(self, height):
         return not(self.y <= height)
 
-class Ship:
-    COOLDOWN = 14
-
-    def __init__(self, x, y, health):
-        self.x = x
-        self.y = y
-        self.health = health
-        self.ship_img = None
-        self.laser_img = None
-        self.lasers = []
-        self.cool_down_counter = 0
-
-    def draw(self, window):
-        window.blit(self.ship_img, (self.x, self.y))
-        for laser in self.lasers:
-            laser.draw(window)
-
-    def move_lasers(self, vel, obj):
-        self.cooldown()
-        for laser in self.lasers:
-            laser.move(vel)
-            if laser.off_screen(c.HEIGHT+100):
-                self.lasers.remove(laser)
-            elif laser.collision(obj):
-                obj.health -= 10
-                self.lasers.remove(laser)
-
-    def cooldown(self):
-        if self.cool_down_counter >= self.COOLDOWN:
-            self.cool_down_counter = 0
-        elif self.cool_down_counter > 0:
-            self.cool_down_counter += 1
-
-    def get_width(self):
-        return self.ship_img.get_width()
-
-    def get_height(self):
-        return self.ship_img.get_height()
+#BOSSES
 
 class Boss:
     COOLDOWN=15
@@ -186,41 +150,59 @@ class Bosslvl5(Boss):
         self.last = 0
         self.secondShot=1
     
-    def topleft(self,window):
+    def topleft(self):
         laser = Laser(self.x+12, self.y+64, random.choice([c.bbullet_left1,c.bbullet_straight1]))
         self.lasers.append(laser)
-        laser.draw(window)
-    def topright(self,window):
+    def topright(self):
         laser = Laser(self.x+76, self.y+64, random.choice([c.bbullet_right1,c.bbullet_straight1]))
         self.lasers.append(laser)
-        laser.draw(window)
-    def midleft(self,window):
+    def midleft(self):
         laser = Laser(self.x+30, self.y+62, c.bbullet_straight1)
         self.lasers.append(laser)
-        laser.draw(window)
-    def midright(self,window):
+    def midright(self):
         laser = Laser(self.x+50, self.y+62, c.bbullet_straight1)
         self.lasers.append(laser)
-        laser.draw(window)
-    # clock.tick(15)
-    def leftRightshoot(self,window):
-        now=pygame.time.get_ticks()
-        for x in range(5): 
-            if self.secondShot==1:
-                self.secondShot=0 
-                if now-self.last>=350:
-                    print(1)
-                    self.last=now
-                    self.topleft(window)
-                    while True:
-                        now=pygame.time.get_ticks()
-                        while now-self.last>=350:
-                            print(2)
-                            self.last=now
-                            self.topright(window) 
-                            self.secondShot=1
-                            pass
-                        break
+
+
+#Ships, player enemy
+class Ship:
+    COOLDOWN = 14
+
+    def __init__(self, x, y, health):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.ship_img = None
+        self.laser_img = None
+        self.lasers = []
+        self.cool_down_counter = 0
+
+    def draw(self, window):
+        window.blit(self.ship_img, (self.x, self.y))
+        for laser in self.lasers:
+            laser.draw(window)
+
+    def move_lasers(self, vel, obj):
+        self.cooldown()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(c.HEIGHT+100):
+                self.lasers.remove(laser)
+            elif laser.collision(obj):
+                obj.health -= 10
+                self.lasers.remove(laser)
+
+    def cooldown(self):
+        if self.cool_down_counter >= self.COOLDOWN:
+            self.cool_down_counter = 0
+        elif self.cool_down_counter > 0:
+            self.cool_down_counter += 1
+
+    def get_width(self):
+        return self.ship_img.get_width()
+
+    def get_height(self):
+        return self.ship_img.get_height()
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -228,15 +210,19 @@ class Player(Ship):
         match c.shiplvl:
             case 1:
                 self.ship_img = c.SHIP1
+                self.max_health = 100
             case 2:
                 self.ship_img = c.SHIP2
+                self.max_health = 200
             case 3:
                 self.ship_img = c.SHIP3
+                self.max_health = 400
             case 4:
-                self.ship_img = c.SHIP4        
+                self.ship_img = c.SHIP4
+                self.max_health = 800        
         self.laser_img = c.bullet5
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.max_health = health
+        
 
     def move_lasers(self, vel, objs):
         self.cooldown()
@@ -249,6 +235,7 @@ class Player(Ship):
                     if laser.collision(obj):
                         obj.health-=100
                         if laser in self.lasers:
+                            c.killedEnemy+=1
                             self.lasers.remove(laser)
 
     def shoot(self):
@@ -289,6 +276,7 @@ class Enemy(Ship):
 
     def death(self, enemies,enemy):
         if self.health<=0:
+            #c.killedEnemy+=1
             enemies.remove(enemy)
 
     def shoot(self):
@@ -296,6 +284,8 @@ class Enemy(Ship):
             laser = Laser(self.x+17, self.y+40, self.laser_img)
             self.lasers.append(laser)
             self.cool_down_counter = 2
+
+#FUNCTIONS
 
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x

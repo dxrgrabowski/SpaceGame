@@ -1,5 +1,4 @@
-import pygame, sys, random, ptext
-import os
+import pygame, sys, random, ptext, os
 from button import Button
 from volume import Volume
 from objects import *
@@ -10,17 +9,11 @@ pygame.font.init()
 #TO DO
 '''
 -Więcej dźwięków
--pauza
+-winietowanie
 -Level design
 -Plik konfiguracyjny opcji
-X-Plik z zapisem
-X-Dodanie Bossow
-X-Statek gracza z postepem
-X-Mozliwosc wyboru statku gracza
-X-Zmiana Play, Quit, dodanie Resume
 -Boostery,HP
 -Healthbar z boku ekranu
--uporządkowanie constants.py
 '''
 
 WIN = pygame.display.set_mode((c.WIDTH, c.HEIGHT))
@@ -49,7 +42,6 @@ def main():
 
     laser_vel = 5
 
-    clock = pygame.time.Clock()
     lost = False
     lost_count = 0
     x,y=pygame.mouse.get_pos()
@@ -88,16 +80,16 @@ def main():
         pygame.display.update()
 
     while run:
-        clock.tick(c.FPS)
+        c.clock.tick(c.FPS)
         redraw_window()
         
         if lives <= 0 or player.health <= 0:
             lost = True
             lost_count += 1
         if lost:
-            c.money+=c.level
+            c.money+=c.killedEnemy
             run=False
-            summary(c.level)
+            summary(c.killedEnemy)
 #resp enemy
         
         if len(enemies) == 0 and len(bosses)==0:
@@ -109,10 +101,15 @@ def main():
             if len(bosses)==0:
                 for i in range(enemy_number):
                     enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
-                    enemies.append(enemy)
-            
+                    enemies.append(enemy)    
 #Events
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused()
+                if event.key == pygame.K_UP:
+                    boss.topleft()
+                              
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
@@ -123,21 +120,14 @@ def main():
                 if len(bosses)!=0:
                     if random.randint(0,1)==1:
                         boss.vx = -boss.vx
-#Key binding
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            player.shoot()
-        if keys[pygame.K_ESCAPE]:
-            main_menu()
-        if keys[pygame.K_UP]:
-            boss.leftRightshoot(WIN)
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                player.shoot()
             
 #Collision and move       
         for boss in bosses[:]:
             boss.death(bosses,boss)
             boss.move(0.2)
             boss.move_lasers(laser_vel,player)
-            
             if boss.collision(player):
                 player.health -= 100
         for asteroid in asteroids[:]:
@@ -163,7 +153,30 @@ def main():
         player.move_lasers(-laser_vel, enemies)
         player.move_lasers(-laser_vel, bosses)
 
-######################################################################################################################
+def paused():
+    c.pause=True
+    
+    for opacity in range(0, 15, 1):
+     work_img = c.BLACK.copy()
+     pygame.draw.rect(work_img, (0,0, 0, opacity),  (0,0, c.WIDTH,c.HEIGHT))
+     WIN.blit(work_img, (0,0))
+     ptext.draw('GAME PAUSED\nPRESS ESC TO RESUME', centery=c.HEIGHT/3,centerx=c.WIDTH/2, color="#bfbfbf",gcolor="#292a40", fontsize=75, alpha=0.8)
+     pygame.display.update()
+
+    while c.pause:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    c.pause=False
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit() 
+        c.clock.tick(15)  
+    pygame.display.update()
+
+############################################## MAIN MENU/UI FUNCTIONS #################################################
+
+
 def options_menu():
     run = True
     volume_var=1
@@ -218,12 +231,15 @@ def levelchoose():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if easyButton.checkForInput(menuPos):
                     c.level=0
+                    pygame.mixer.music.fadeout(240)
                     main()
                 if mediumButton.checkForInput(menuPos):
                     c.level=9
+                    pygame.mixer.music.fadeout(240)
                     main()
                 if hardButton.checkForInput(menuPos):
                     c.level=19
+                    pygame.mixer.music.fadeout(240)
                     main()
 
         pygame.display.update()  
@@ -231,50 +247,67 @@ def levelchoose():
 
 def summary(level):
     run=True
-    f=open("SpaceGame/save.txt","w")
-    f.write(str(c.money)+"\n") #Money
-    f.write(str(c.shiplvl)+"\n") #Shiplvl
-    f.close()
+    c.killedEnemy=0
+    saveToFile()    
+    
+    #Music/sounds
     pygame.mouse.set_visible(1)
     pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
-    WIN.blit(c.BG, (0,0))
+    
+    #Graphics declaration
     plus=get_font(50).render("+", 1, (255,255,255))
     equal=get_font(50).render("=", 1, (255,255,255))
     bbalancev = get_font(60).render(str(c.money-level), 1, "#383733")
     earningsv = get_font(60).render(str(level), 1, "#2f8022")
     currentbalancev= get_font(60).render(str(c.money), 1, "#bfb152")
-    WIN.blit(bbalancev, (c.WIDTH/2 - bbalancev.get_width()/2-300, 320))
-    WIN.blit(earningsv, (c.WIDTH/2 - earningsv.get_width()/2, 320))
-    WIN.blit(currentbalancev, (c.WIDTH/2 - currentbalancev.get_width()/2+300, 320))
-    WIN.blit(plus, (c.WIDTH/2 - plus.get_width()/2-150, 320))
-    WIN.blit(equal, (c.WIDTH/2 - equal.get_width()/2+150, 320))
-    
     bbalance = get_font(22).render("balance before: ", 1, "#383733")
     earnings = get_font(22).render("earnings: ", 1, "#2f8022")
     currentbalance= get_font(22).render("current balance: ", 1, "#bfb152")
-    WIN.blit(bbalance, (c.WIDTH/2 - bbalance.get_width()/2-300, 250))
-    WIN.blit(earnings, (c.WIDTH/2 - earnings.get_width()/2, 250))
-    WIN.blit(currentbalance, (c.WIDTH/2 - currentbalance.get_width()/2+300, 250))
+    playButton=Button(None, pos=(c.WIDTH/2-200,650), 
+                        text_input="PLAY AGAIN", font=get_font(50), base_color="White", hovering_color="Blue")
+    returnButton=Button(None, pos=(c.WIDTH/2+300,650), 
+                        text_input="RETURN", font=get_font(50), base_color="White", hovering_color="Blue")
+    
+    #vignetting
+    for opacity in range(255, 30, -2):
+     menuPos=pygame.mouse.get_pos()
+     WIN.blit(c.BG,(0,0))
+     work_img = c.BLACK.copy()
+     pygame.draw.rect(work_img, (0,0, 0, opacity),  (0,0, c.WIDTH,c.HEIGHT))
+     ptext.draw('YOU\'RE DEAD', centery=c.HEIGHT/8,centerx=c.WIDTH/2, color="#c40000",gcolor="#0a0000", fontsize=80, alpha=0.8)
+     for button in [returnButton,playButton]:
+            button.update(WIN)
+     WIN.blit(work_img, (0,0))
+     WIN.blit(bbalancev, (c.WIDTH/2 - bbalancev.get_width()/2-300, 320))
+     WIN.blit(earningsv, (c.WIDTH/2 - earningsv.get_width()/2, 320))
+     WIN.blit(currentbalancev, (c.WIDTH/2 - currentbalancev.get_width()/2+300, 320))
+     WIN.blit(plus, (c.WIDTH/2 - plus.get_width()/2-150, 320))
+     WIN.blit(equal, (c.WIDTH/2 - equal.get_width()/2+150, 320))
+     WIN.blit(bbalance, (c.WIDTH/2 - bbalance.get_width()/2-300, 250))
+     WIN.blit(earnings, (c.WIDTH/2 - earnings.get_width()/2, 250))
+     WIN.blit(currentbalance, (c.WIDTH/2 - currentbalance.get_width()/2+300, 250))
+     pygame.display.update()
+
+
+
     while run:
         menuPos=pygame.mouse.get_pos()
-        playButton=Button(None, pos=(c.WIDTH/2-200,650), 
-                            text_input="PLAY AGAIN", font=get_font(50), base_color="White", hovering_color="Blue")
-        returnButton=Button(None, pos=(c.WIDTH/2+300,650), 
-                            text_input="RETURN", font=get_font(50), base_color="White", hovering_color="Blue")
         for button in [returnButton,playButton]:
             button.changeColor(menuPos)
             button.update(WIN)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run=False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                 if returnButton.checkForInput(menuPos):
                     main_menu()
                 if playButton.checkForInput(menuPos):
                     pygame.mixer.music.fadeout(240)
-                    main()
+                    levelchoose()
         pygame.display.update()
 
 def get_font(size): # Returns Press-Start-2P in the desired size
@@ -285,6 +318,7 @@ def main_menu():
     pygame.mouse.set_visible(1)
     pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
     
     moving_sprites = pygame.sprite.Group()
     balancecoin = Coin(c.WIDTH/2+295, 275)
@@ -301,10 +335,10 @@ def main_menu():
 
         match volume_var:
             case 1:
-                pygame.mixer.music.set_volume(0.7)
+                pygame.mixer.music.set_volume(0.5)
                 WIN.blit(c.VOLUMEHIGH,(c.WIDTH-150,c.HEIGHT-150))
             case 2:
-                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.set_volume(0.15)
                 WIN.blit(c.VOLUMELOW,(c.WIDTH-150,c.HEIGHT-150))
             case 0:
                 pygame.mixer.music.set_volume(0.0)
@@ -351,13 +385,14 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run=False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                 if playButton.checkForInput(menuPos):
-                    pygame.mixer.music.fadeout(240)
+                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     levelchoose()
-                    main()
                 if quitButton.checkForInput(menuPos):
+                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     pygame.quit()
                     sys.exit()
                 if volumeButton.checkForInput(menuPos):
@@ -368,9 +403,11 @@ def main_menu():
                     elif volume_var==0:
                         volume_var=1
                 if optionsButton.checkForInput(menuPos):
+                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     options_menu()  
                 if upgrade.checkForInput(menuPos):
                     if int(c.money)>=100 and c.shiplvl==1:
+                        pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                         c.shiplvl=2
                         c.money-=100
                         saveToFile()
@@ -416,4 +453,11 @@ X-Efekty po kliknieciu przycisku w menu
 X-Przycisk wylaczania muzyki
 X-Wysrodkowanie strzalu 
 X-Asteroidy ktore nadlatuja z bokow
+X-pauza
+X-Plik z zapisem
+X-Dodanie Bossow
+X-Statek gracza z postepem
+X-Mozliwosc wyboru statku gracza
+X-Zmiana Play, Quit, dodanie Resume
+X-uporządkowanie constants.py
 '''

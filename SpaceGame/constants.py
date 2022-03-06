@@ -7,6 +7,9 @@ money=None #type: int
 shiplvl=None    #type: int
 alfa=1
 level=None
+pause=False
+clock = pygame.time.Clock()
+killedEnemy=0
 
 #Communicates
 ifunds=0
@@ -51,6 +54,7 @@ YELLOW_LASER = pygame.image.load(os.path.join("test/assets", "pixel_laser_yellow
 #Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame/Assets/bg_1.jpg")), (WIDTH, HEIGHT))
 MMBG = pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame/Assets", "bg_2.jpg")), (WIDTH, HEIGHT))
+BLACK=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame/Assets", "black.png")), (WIDTH, HEIGHT))
 LOGO=pygame.image.load(os.path.join("SpaceGame/Assets", "Skyspace_logo_white.png"))
 VOLUMELOW=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame/Assets/menu", "volume_low.png")), (100, 100))
 VOLUMEHIGH=pygame.transform.scale(pygame.image.load(os.path.join("SpaceGame/Assets/menu", "volume_high.png")), (100, 100))
