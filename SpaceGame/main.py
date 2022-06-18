@@ -24,7 +24,7 @@ pygame.time.set_timer(asteroidSpawn,c.FPS*30)
 xChange=pygame.USEREVENT
 pygame.time.set_timer(xChange,1500)
 
-if os.path.exists("SpaceGame/save.txt")==False:
+if os.path.exists("save.txt")==False:
     makeSaveFile()
 loadFromFile()
 
@@ -100,7 +100,7 @@ def main():
             enemy_number=Level.lvl_desc[c.level]
             if len(bosses)==0:
                 for i in range(enemy_number):
-                    enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-100, -10), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
+                    enemy = Enemy(random.randrange(50, c.WIDTH-100), random.randrange(-1000, -50), random.choice(["1", "2", "3", "4", "5", "6", "7", "8"]))
                     enemies.append(enemy)    
 #Events
         for event in pygame.event.get():
@@ -181,7 +181,7 @@ def options_menu():
     run = True
     volume_var=1
     pygame.mouse.set_visible(1)
-    pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
+    pygame.mixer.music.load('Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
     
     while run:
@@ -252,7 +252,7 @@ def summary(level):
     
     #Music/sounds
     pygame.mouse.set_visible(1)
-    pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
+    pygame.mixer.music.load('Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
     
     #Graphics declaration
@@ -302,7 +302,7 @@ def summary(level):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                pygame.mixer.Sound('Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                 if returnButton.checkForInput(menuPos):
                     main_menu()
                 if playButton.checkForInput(menuPos):
@@ -311,12 +311,12 @@ def summary(level):
         pygame.display.update()
 
 def get_font(size): # Returns Press-Start-2P in the desired size
-    return pygame.font.Font("SpaceGame/assets/font.ttf", size)
+    return pygame.font.Font("assets/font.ttf", size)
 def main_menu():
     run = True
     volume_var=1
     pygame.mouse.set_visible(1)
-    pygame.mixer.music.load('SpaceGame\Assets\music\menu.wav')
+    pygame.mixer.music.load('Assets\music\menu.wav')
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.5)
     
@@ -389,10 +389,10 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if playButton.checkForInput(menuPos):
-                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                    pygame.mixer.Sound('Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     levelchoose()
                 if quitButton.checkForInput(menuPos):
-                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                    pygame.mixer.Sound('Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     pygame.quit()
                     sys.exit()
                 if volumeButton.checkForInput(menuPos):
@@ -403,11 +403,11 @@ def main_menu():
                     elif volume_var==0:
                         volume_var=1
                 if optionsButton.checkForInput(menuPos):
-                    pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                    pygame.mixer.Sound('Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                     options_menu()  
                 if upgrade.checkForInput(menuPos):
                     if int(c.money)>=100 and c.shiplvl==1:
-                        pygame.mixer.Sound('SpaceGame\Assets\music\click_sound_2.mp3').play().set_volume(0.1)
+                        pygame.mixer.Sound('Assets\music\click_sound_2.mp3').play().set_volume(0.1)
                         c.shiplvl=2
                         c.money-=100
                         saveToFile()

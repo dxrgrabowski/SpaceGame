@@ -293,17 +293,17 @@ def collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 def makeSaveFile():
-    f=open("SpaceGame/save.txt","w")
+    f=open("save.txt","w")
     f.write("0\n") #Money
     f.write("1\n") #Shiplvl
     f.close()
 def loadFromFile():
-    f=open("SpaceGame/save.txt","r")
+    f=open("save.txt","r")
     c.money=int(f.readline()) #Money
     c.shiplvl=int(f.readline()) #Shiplvl
     f.close()
 def saveToFile():
-    f=open("SpaceGame/save.txt","w")
+    f=open("save.txt","w")
     f.write(str(c.money)+"\n")
     f.write(str(c.shiplvl)+"\n") 
     f.close()
