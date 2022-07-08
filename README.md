@@ -11,5 +11,5 @@
 # Boss fight
 ![image](https://user-images.githubusercontent.com/92030397/174450735-35c450bf-c531-4dae-84c5-f3bd608d4bef.png)
 
-# Late lame level
+# Late game level
 ![image](https://user-images.githubusercontent.com/92030397/174450829-a1bf0783-5087-4e28-a926-d6e620492ad2.png)
